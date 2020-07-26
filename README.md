@@ -1,1 +1,1 @@
-# PELE-OpenMM
+# OpenExplorer
