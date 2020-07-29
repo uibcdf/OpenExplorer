@@ -1,40 +1,49 @@
 import numpy as np
+import molsysmt as msm
 import simtk.unit as unit
 
 
 class Explorer():
 
+    topology = None
     context = None
+    pbc = False
     n_atoms = 0
 
-    def __init__(self, item):
+    def __init__(self, topology=None, system=None, pbc=False, platform='CUDA'):
 
-        from molsysmt import get_form
+        if topology is None:
+            raise ValueError('topology is needed')
 
-        item_form = get_form(item)
+        if system is None:
+            raise ValueError('system is needed')
 
-        if item_form == 'openmm.Context':
+        from simtk import unit
+        from simtk.openmm import app
+        from simtk.openmm import LangevinIntegrator, Context, Platform
+        from molsysmt import box_shape_from_box_vectors
 
-            self.context = item
+        temperature = 0*unit.kelvin
+        friction   = 1.0/unit.picosecond
+        step_size  = 2.0*unit.femtoseconds
+        integrator = LangevinIntegrator(temperature, friction, step_size)
+        integrator.setConstraintTolerance(0.00001)
 
-        elif item_form == 'openmm.System':
-
-            from simtk import unit
-            from simtk.openmm import app
-            from simtk.openmm import LangevinIntegrator, Context, Platform
-
-            temperature = 0*unit.kelvin
-            friction   = 1.0/unit.picosecond
-            step_size  = 2.0*unit.femtoseconds
-            integrator = LangevinIntegrator(temperature, friction, step_size)
-            integrator.setConstraintTolerance(0.00001)
-
+        if platform=='CUDA':
             platform = Platform.getPlatformByName('CUDA')
             properties = {'CudaPrecision': 'mixed'}
+        elif platform =='CPU':
+            platform = Platform.getPlatformByName('CPU')
+            properties = {}
 
-            self.context = Context(item, integrator, platform, properties)
+        self.topology = topology
+        self.context = Context(system, integrator, platform, properties)
+        self.n_atoms = msm.get(self.context, target='system', n_atoms=True)
 
-        self.n_atoms = self.context.getSystem().getNumParticles()
+        self.pbc = pbc
+
+        if self.pbc:
+            raise NotImplementedError
 
     def set_coordinates(self, coordinates):
 
@@ -71,8 +80,9 @@ class Explorer():
             The unit is kilojoule / (nanometer^2 * mole * dalton) => 10^24 s^-2
         """
 
+        n_dof = self.n_atoms*3
         pos = self.get_coordinates()
-        hessian = np.empty((self.n_atoms*3, self.n_atoms*3), dtype=float)*unit.kilojoules_per_mole / (unit.nanometers**2)
+        hessian = np.empty((n_dof, n_dof), dtype=float)*unit.kilojoules_per_mole / (unit.nanometers**2)
         # finite difference step size
         diff = 0.0001*unit.nanometer
         coef = 1.0 /  (2.0*diff) # 1/2h
