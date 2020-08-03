@@ -61,7 +61,6 @@ class OpenExplorerReporter():
             if self._atom_indices is 'all':
                 self.coordinates.append(value)
             else:
-                print(self._atom_indices)
                 value = value[self._atom_indices,:]
                 self.coordinates.append(value)
 
