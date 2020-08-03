@@ -1,7 +1,10 @@
 import numpy as np
 import molsysmt as msm
 import simtk.unit as unit
-
+from simtk.openmm import app
+from simtk.openmm import Context, Platform
+from simtk.openmm import LangevinIntegrator, VerletIntegrator, LocalEnergyMinimizer
+from openmmtools.integrators import FIREMinimizationIntegrator, GradientDescentMinimizationIntegrator
 
 class Explorer():
 
@@ -18,15 +21,13 @@ class Explorer():
         if system is None:
             raise ValueError('system is needed')
 
-        from simtk import unit
-        from simtk.openmm import app
-        from simtk.openmm import LangevinIntegrator, Context, Platform
-        from molsysmt import box_shape_from_box_vectors
+        #temperature = 0*unit.kelvin
+        #friction   = 1.0/unit.picosecond
+        #step_size  = 2.0*unit.femtoseconds
+        #integrator = LangevinIntegrator(temperature, friction, step_size)
 
-        temperature = 0*unit.kelvin
-        friction   = 1.0/unit.picosecond
-        step_size  = 2.0*unit.femtoseconds
-        integrator = LangevinIntegrator(temperature, friction, step_size)
+        step_size  = 1.0*unit.femtoseconds
+        integrator = VerletIntegrator(step_size)
         integrator.setConstraintTolerance(0.00001)
 
         if platform=='CUDA':
@@ -53,18 +54,18 @@ class Explorer():
 
         return self.context.getState(getPositions=True).getPositions(asNumpy=True)
 
-    def get_energy(self):
+    def get_potential_energy(self):
 
         energy = self.context.getState(getEnergy=True).getPotentialEnergy()
         return energy
 
-    def get_gradient(self):
+    def get_potential_energy_gradient(self):
 
         gradient = -self.context.getState(getForces=True).getForces(asNumpy=True)
         gradient = gradient.ravel()*gradient.unit
         return gradient
 
-    def get_hessian(self, mass_weighted=False, symmetric=True):
+    def get_potential_energy_hessian(self, mass_weighted=False, symmetric=True):
 
         """OpenMM single frame hessian evaluation
         Since OpenMM doesnot provide a Hessian evaluation method, we used finite difference on forces
@@ -119,6 +120,68 @@ class Explorer():
         self.set_coordinates(pos)
         return hessian
 
+    def quench(self, minimizer='L-BFGS', tolerance=1.0*unit.kilojoules_per_mole/unit.nanometers, max_iterations=0):
+
+        if minimizer=='L-BFGS':
+            LocalEnergyMinimizer.minimize(self.context, tolerance, max_iterations)
+
+        elif minimizer=='FIRE':
+
+            system = self.context.getSystem()
+            platform = self.context.getPlatform()
+            properties = {}
+            if platform.getName()=='CUDA':
+                properties['CudaPrecision'] = 'mixed'
+            integrator = FIREMinimizationIntegrator(tolerance=tolerance)
+            tmp_context = Context(system, integrator, platform, properties)
+            tmp_context.setPositions(self.get_coordinates())
+
+            try:
+                if max_iterations == 0:
+                    while integrator.getGlobalVariableByName('converged') < 1:
+                        integrator.step(50)
+                else:
+                    integrator.step(max_iterations)
+            except Exception as e:
+                if str(e) == 'Particle coordinate is nan':
+                    print('NaN encountered in FIRE minimizer; falling back to L-BFGS after resetting positions')
+                    LocalEnergyMinimizer_minimize(tmp_context, tolerance, max_iterations)
+                else:
+                    raise e
+
+            min_coordinates = tmp_context.getState(getPositions=True).getPositions(asNumpy=True)
+            self.context.setPositions(min_coordinates)
+
+        elif minimizer=='gradient_descent':
+
+            system = self.context.getSystem()
+            platform = self.context.getPlatform()
+            properties = {}
+            if platform.getName()=='CUDA':
+                properties['CudaPrecision'] = 'mixed'
+            integrator = GradientDescentMinimizationIntegrator(initial_step_size=0.01 * unit.angstroms)
+            tmp_context = Context(system, integrator, platform, properties)
+            tmp_context.setPositions(self.get_coordinates())
+
+            try:
+                if max_iterations == 0:
+                    delta=np.infty
+                    while delta > tolerance.value_in_unit(unit.kilojoules_per_mole):
+                        integrator.step(50)
+                        delta=integrator.getGlobalVariableByName('delta_energy')
+                else:
+                    integrator.step(max_iterations)
+            except Exception as e:
+                if str(e) == 'Particle coordinate is nan':
+                    print('NaN encountered in FIRE minimizer; falling back to L-BFGS after resetting positions')
+                    LocalEnergyMinimizer_minimize(tmp_context, tolerance, max_iterations)
+                else:
+                    raise e
+
+            min_coordinates = tmp_context.getState(getPositions=True).getPositions(asNumpy=True)
+            self.context.setPositions(min_coordinates)
+
+
 #     def normal_modes(self, shot=0, optimize=True):
 #        """OpenMM Normal Mode Analysis
 #        from: https://leeping.github.io/forcebalance/doc/html/api/openmmio_8py_source.html
@@ -169,3 +232,5 @@ class Explorer():
 #        freqs = freqs[larger_freq_idxs]
 #        normal_modes = normal_modes[larger_freq_idxs]
 #        return freqs, normal_modes
+
+
