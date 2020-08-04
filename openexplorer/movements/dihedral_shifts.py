@@ -10,13 +10,13 @@ def _quartets_and_blocks(explorer, dihedral_angles):
 
     if dihedral_angles=='all':
 
-        phi_q, phi_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='phi', selection='group_name!="PRO"', with_blocks=True)
-        psi_q, psi_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='psi', with_blocks=True)
-        chi1_q, chi1_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='chi1', selection='group_name!="PRO"', with_blocks=True)
-        chi2_q, chi2_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='chi2', selection='group_name!="PRO"', with_blocks=True)
-        chi3_q, chi3_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='chi3', with_blocks=True)
-        chi4_q, chi4_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='chi4', with_blocks=True)
-        chi5_q, chi5_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='chi5', with_blocks=True)
+        phi_q, phi_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='phi', selection='group_name!="PRO"', with_blocks=True)
+        psi_q, psi_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='psi', with_blocks=True)
+        chi1_q, chi1_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='chi1', selection='group_name!="PRO"', with_blocks=True)
+        chi2_q, chi2_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='chi2', selection='group_name!="PRO"', with_blocks=True)
+        chi3_q, chi3_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='chi3', with_blocks=True)
+        chi4_q, chi4_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='chi4', with_blocks=True)
+        chi5_q, chi5_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='chi5', with_blocks=True)
 
 
         aux_q = []
@@ -38,8 +38,8 @@ def _quartets_and_blocks(explorer, dihedral_angles):
 
     elif dihedral_angles=='backbone':
 
-        phi_q, phi_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='phi', selection='group_name!="PRO"', with_blocks=True)
-        psi_q, psi_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='psi', with_blocks=True)
+        phi_q, phi_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='phi', selection='group_name!="PRO"', with_blocks=True)
+        psi_q, psi_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='psi', with_blocks=True)
 
         aux_q = []
         aux_blk = []
@@ -54,11 +54,11 @@ def _quartets_and_blocks(explorer, dihedral_angles):
  
     elif dihedral_angles=='side_chains':
 
-        chi1_q, chi1_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='chi1', selection='group_name!="PRO"', with_blocks=True)
-        chi2_q, chi2_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='chi2', selection='group_name!="PRO"', with_blocks=True)
-        chi3_q, chi3_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='chi3', with_blocks=True)
-        chi4_q, chi4_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='chi4', with_blocks=True)
-        chi5_q, chi5_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angles='chi5', with_blocks=True)
+        chi1_q, chi1_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='chi1', selection='group_name!="PRO"', with_blocks=True)
+        chi2_q, chi2_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='chi2', selection='group_name!="PRO"', with_blocks=True)
+        chi3_q, chi3_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='chi3', with_blocks=True)
+        chi4_q, chi4_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='chi4', with_blocks=True)
+        chi5_q, chi5_blk = msm.covalent_dihedral_quartets(explorer.topology, dihedral_angle='chi5', with_blocks=True)
 
         aux_q = []
         aux_blk = []

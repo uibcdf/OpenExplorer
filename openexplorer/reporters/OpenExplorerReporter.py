@@ -20,10 +20,10 @@ class OpenExplorerReporter():
         self._potentialEnergy = potentialEnergy
 
         self.topology = None
-        self.step = []
-        self.coordinates = []*unit.nanometers
-        self.box = []*unit.nanometers
-        self.potential_energy = []*unit.kilojoules_per_mole
+        self.step = None
+        self.coordinates = None
+        self.box = None
+        self.potential_energy = None
 
         self._needsPositions = self._coordinates
         self._needsVelocities = False
@@ -44,6 +44,18 @@ class OpenExplorerReporter():
         else:
             self._atom_indices = 'all'
             self.topology = msm.convert(topology, to_form='molsysmt.Topology')
+
+        if self._step:
+            self.step = []
+
+        if self._coordinates:
+            self.coordinates = []*unit.nanometers
+
+        if self._boxVectors:
+            self.box = []*unit.nanometers
+
+        if self._potentialEnergy:
+            self.potential_energy = []*unit.kilojoules_per_mole
 
         self._initialized=True
 
