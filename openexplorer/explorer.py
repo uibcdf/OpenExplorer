@@ -13,6 +13,12 @@ class Explorer():
     pbc = False
     n_atoms = 0
 
+    _context_LangevinIntegrator = None
+    _context_VerletIntegrator = None
+
+    _context_FIREMinimizationIntegrator = None
+    _context_GradientDescentMinimizationIntegrator = None
+
     def __init__(self, topology=None, system=None, pbc=False, platform='CUDA'):
 
         if topology is None:
@@ -120,20 +126,27 @@ class Explorer():
         self.set_coordinates(pos)
         return hessian
 
-    def quench(self, minimizer='L-BFGS', tolerance=1.0*unit.kilojoules_per_mole/unit.nanometers, max_iterations=0):
+    def quench(self, minimizer='L-BFGS', tolerance=None, max_iter=None):
+    def quench(self, minimizer='L-BFGS', tolerance=1.0*unit.kilojoules_per_mole/unit.nanometers, max_iter=None):
 
         if minimizer=='L-BFGS':
-            LocalEnergyMinimizer.minimize(self.context, tolerance, max_iterations)
+            LocalEnergyMinimizer.minimize(self.context, tolerance , 0)
 
         elif minimizer=='FIRE':
 
-            system = self.context.getSystem()
-            platform = self.context.getPlatform()
-            properties = {}
-            if platform.getName()=='CUDA':
-                properties['CudaPrecision'] = 'mixed'
-            integrator = FIREMinimizationIntegrator(tolerance=tolerance)
-            tmp_context = Context(system, integrator, platform, properties)
+            if self._context_FIREMinimizationIntegrator is None:
+
+                system = self.context.getSystem()
+                platform = self.context.getPlatform()
+                properties = {}
+                if platform.getName()=='CUDA':
+                    properties['CudaPrecision'] = 'mixed'
+                integrator = FIREMinimizationIntegrator(tolerance=tolerance)
+                self._context_FIREMinimizationIntegrator = Context(system, integrator, platform, properties)
+
+            else:
+
+
             tmp_context.setPositions(self.get_coordinates())
 
             try:
