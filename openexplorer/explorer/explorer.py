@@ -3,8 +3,7 @@ import molsysmt as msm
 import simtk.unit as unit
 from simtk.openmm import app
 from simtk.openmm import Context, Platform
-from simtk.openmm import LangevinIntegrator, VerletIntegrator, LocalEnergyMinimizer
-from openmmtools.integrators import FIREMinimizationIntegrator, GradientDescentMinimizationIntegrator
+from simtk.openmm import VerletIntegrator
 
 class Explorer():
 
@@ -12,14 +11,15 @@ class Explorer():
     context = None
     pbc = False
     n_atoms = 0
-
-    _context_LangevinIntegrator = None
-    _context_VerletIntegrator = None
-
-    _context_FIREMinimizationIntegrator = None
-    _context_GradientDescentMinimizationIntegrator = None
+    md = None
+    quench = None
+    move = None
 
     def __init__(self, topology=None, system=None, pbc=False, platform='CUDA'):
+
+        from .md import MD
+        from .quench import Quench
+        from .move import Move
 
         if topology is None:
             raise ValueError('topology is needed')
@@ -51,6 +51,10 @@ class Explorer():
 
         if self.pbc:
             raise NotImplementedError
+
+        self.md = MD(self)
+        self.quench = Quench(self)
+        self.move = Move(self)
 
     def set_coordinates(self, coordinates):
 
@@ -125,75 +129,6 @@ class Explorer():
         # recover the original position
         self.set_coordinates(pos)
         return hessian
-
-    def quench(self, minimizer='L-BFGS', tolerance=None, max_iter=None):
-    def quench(self, minimizer='L-BFGS', tolerance=1.0*unit.kilojoules_per_mole/unit.nanometers, max_iter=None):
-
-        if minimizer=='L-BFGS':
-            LocalEnergyMinimizer.minimize(self.context, tolerance , 0)
-
-        elif minimizer=='FIRE':
-
-            if self._context_FIREMinimizationIntegrator is None:
-
-                system = self.context.getSystem()
-                platform = self.context.getPlatform()
-                properties = {}
-                if platform.getName()=='CUDA':
-                    properties['CudaPrecision'] = 'mixed'
-                integrator = FIREMinimizationIntegrator(tolerance=tolerance)
-                self._context_FIREMinimizationIntegrator = Context(system, integrator, platform, properties)
-
-            else:
-
-
-            tmp_context.setPositions(self.get_coordinates())
-
-            try:
-                if max_iterations == 0:
-                    while integrator.getGlobalVariableByName('converged') < 1:
-                        integrator.step(50)
-                else:
-                    integrator.step(max_iterations)
-            except Exception as e:
-                if str(e) == 'Particle coordinate is nan':
-                    print('NaN encountered in FIRE minimizer; falling back to L-BFGS after resetting positions')
-                    LocalEnergyMinimizer_minimize(tmp_context, tolerance, max_iterations)
-                else:
-                    raise e
-
-            min_coordinates = tmp_context.getState(getPositions=True).getPositions(asNumpy=True)
-            self.context.setPositions(min_coordinates)
-
-        elif minimizer=='gradient_descent':
-
-            system = self.context.getSystem()
-            platform = self.context.getPlatform()
-            properties = {}
-            if platform.getName()=='CUDA':
-                properties['CudaPrecision'] = 'mixed'
-            integrator = GradientDescentMinimizationIntegrator(initial_step_size=0.01 * unit.angstroms)
-            tmp_context = Context(system, integrator, platform, properties)
-            tmp_context.setPositions(self.get_coordinates())
-
-            try:
-                if max_iterations == 0:
-                    delta=np.infty
-                    while delta > tolerance.value_in_unit(unit.kilojoules_per_mole):
-                        integrator.step(50)
-                        delta=integrator.getGlobalVariableByName('delta_energy')
-                else:
-                    integrator.step(max_iterations)
-            except Exception as e:
-                if str(e) == 'Particle coordinate is nan':
-                    print('NaN encountered in FIRE minimizer; falling back to L-BFGS after resetting positions')
-                    LocalEnergyMinimizer_minimize(tmp_context, tolerance, max_iterations)
-                else:
-                    raise e
-
-            min_coordinates = tmp_context.getState(getPositions=True).getPositions(asNumpy=True)
-            self.context.setPositions(min_coordinates)
-
 
 #     def normal_modes(self, shot=0, optimize=True):
 #        """OpenMM Normal Mode Analysis
