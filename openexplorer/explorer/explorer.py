@@ -20,6 +20,7 @@ class Explorer():
         from .md import MD
         from .quench import Quench
         from .move import Move
+        from .distance import Distance
 
         if topology is None:
             raise ValueError('topology is needed')
@@ -55,6 +56,48 @@ class Explorer():
         self.md = MD(self)
         self.quench = Quench(self)
         self.move = Move(self)
+        self.distance = Distance(self)
+
+    def _copy(self):
+
+        topology = self.topology
+        coordinates = self.get_coordinates()
+        system = self.context.getSystem()
+        platform = self.context.getPlatform().getName()
+        pbc = self.pbc
+
+        tmp_explorer = Explorer(topology, system, pbc, platform)
+        tmp_explorer.set_coordinates(coordinates)
+
+        if tmp_explorer.md.langevin._initialized:
+            tmp_explorer.md.langevin.replicate_parameters(self)
+
+        if tmp_explorer.quench.l_bfgs._initialized:
+            tmp_explorer.quench.l_bfgs.replicate_paramters(self)
+
+        if tmp_explorer.quench.fire._initialized:
+            tmp_explorer.quench.fire.replicate_paramters(self)
+
+        if tmp_explorer.quench.gradient_descent._initialized:
+            tmp_explorer.quench.gradient_descent.replicate_paramters(self)
+
+
+
+
+    def replicate(self, times=1):
+
+        from copy import deepcopy
+
+        if times==1:
+
+            output = deepcopy(self)
+
+        else:
+
+            output = [deepcopy(self) for ii in range(times)]
+
+        return output
+
 
     def set_coordinates(self, coordinates):
 

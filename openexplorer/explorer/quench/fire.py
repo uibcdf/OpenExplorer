@@ -54,6 +54,19 @@ class FIRE():
 
         self._initialize()
 
+    def replicate_parameters(self, explorer)
+
+        timestep = explorer.quench.fire._timestep
+        tolerance = explorer.quench.fire._tolerance
+        alpha = explorer.quench.fire._alpha
+        dt_max = explorer.quench.fire._dt_max
+        f_inc = explorer.quench.fire._f_inc
+        f_dec = explorer.quench.fire._f_dec
+        f_alpha = explorer.quench.fire._f_alpha
+        N_min = explorer.quench.fire._N_min
+
+        self.set_parameters(timestep, tolerance, alpha, dt_max, f_inc, f_dec, f_alpha, N_min)
+
     def _set_coordinates(self, coordinates):
 
         self._context.setPositions(coordinates)

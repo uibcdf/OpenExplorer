@@ -27,6 +27,12 @@ class RandomAtomsMaxRMSD():
         if not self._initialized:
             self._initialize()
 
+    def replicate_parameters(self, explorer):
+
+        stepsize = explorer.move.random_atoms_max_rmsd._stepsize
+
+        self.set_parameters(stepsize)
+
     def _coordinates_to_explorer(self, coordinates):
 
         return self._explorer.set_coordinates(coordinates)

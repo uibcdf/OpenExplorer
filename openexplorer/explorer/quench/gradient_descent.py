@@ -40,6 +40,13 @@ class Gradient_descent():
         self._initial_step_size = initial_step_size.in_units_of(u.nanometers)
         self._integrator.setGlobalVariableByName('step_size', self._initial_step_size._value)
 
+    def replicate_parameters(self, explorer):
+
+        tolerance = explorer.quench.gradient_descent._tolerance
+        initial_step_size = explorer.quench.gradient_descent._initial_step_size
+
+        self.set_parameters(tolerance, initial_step_size)
+
     def _set_coordinates(self, coordinates):
 
         self._context.setPositions(coordinates)

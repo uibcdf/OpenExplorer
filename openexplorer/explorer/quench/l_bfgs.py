@@ -25,6 +25,13 @@ class L_BFGS():
 
         self._initialize()
 
+    def replicate_parameters(self, explorer):
+
+        tolerance = explorer.quench.l_bfgs._tolerance
+        max_iter = explorer.quench.l_bfgs._max_iter
+
+        self.set_parameters(tolerance, max_iter)
+
     def run(self):
 
         if not self._initialized:

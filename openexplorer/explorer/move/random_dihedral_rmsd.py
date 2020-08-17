@@ -33,6 +33,7 @@ class RandomDihedralRMSD():
 
         if quartets is not None:
             self._quartets = quartets
+            self._n_quartets = self._quartets.shape[0]
             if blocks is not None:
                 self._blocks = blocks
         else:
@@ -44,6 +45,15 @@ class RandomDihedralRMSD():
 
         if not self._initialized:
             self.initialize()
+
+    def replicate_parameters(self, explorer):
+
+        stepsize = explorer.move.random_dihedral_max_rmsd._stepsize
+        dihedral_angles = explorer.move.random_dihedral_max_rmsd._dihedral_angles
+        quartets = explorer.move.random_dihedral_max_rmsd._quartets
+        blocks = explorer.move.random_dihedral_max_rmsd._blocks
+
+        self.set_parameters(stepsize, dihedral_angles, quartets, blocks)
 
     def run(self):
 
