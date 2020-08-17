@@ -1,6 +1,7 @@
 import simtk.unit as u
 from simtk.unit import Quantity
 from simtk.openmm import LangevinIntegrator
+from simtk.openmm import Context
 
 class Langevin():
 
@@ -11,16 +12,17 @@ class Langevin():
 
     _timestep = Quantity(value=2.0, unit=u.femtosecond)
     _temperature = Quantity(value=298.0, unit=u.kelvin)
-    _collision_rate = Quantity(value=1.0, unit=/u.picosecond)
+    _collision_rate = Quantity(value=1.0, unit=1.0/u.picosecond)
 
     def __init__(self, explorer):
 
         self._explorer=explorer
 
-    def _initialize():
+    def _initialize(self):
 
         system = self._explorer.context.getSystem()
         platform = self._explorer.context.getPlatform()
+        properties = {}
         if platform.getName()=='CUDA':
             properties['CudaPrecision'] = 'mixed'
 
@@ -28,16 +30,22 @@ class Langevin():
         self._context = Context(system, self._integrator, platform, properties)
         self._initialized = True
 
-    def set_parameters(self, temperature=Quantity(value=298.0, unit=u.kelvin), collision_rate=Quantity(value=1.0, unit=/u.picosecond)
-            timestep=Quantity(value=2.0, unit=u.femtosecond)):
+    def set_parameters(self, temperature=Quantity(value=298.0, unit=u.kelvin),
+            collision_rate=Quantity(value=1.0, unit=1.0/u.picosecond), timestep=Quantity(value=2.0, unit=u.femtosecond)):
 
         self._timestep = timestep
         self._temperature = temperature
         self._collision_rate = collision_rate
 
-        self._integrator.setFriction(self._collision_rate.value_in_unit(/u.picosecond))
-        self._integrator.setTemperature(self._temperature.value_in_unit(u.kelvin))
-        self._integrator.setStepSize(self._timestep.value_in_unit(u.picoseconds))
+        if self._initialized:
+
+            self._integrator.setFriction(self._collision_rate.value_in_unit(1.0/u.picosecond))
+            self._integrator.setTemperature(self._temperature.value_in_unit(u.kelvin))
+            self._integrator.setStepSize(self._timestep.value_in_unit(u.picoseconds))
+
+        else:
+
+            self._intialize()
 
     def _set_coordinates(self, coordinates):
 

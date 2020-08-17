@@ -1,6 +1,8 @@
 import numpy as np
-import simtk.unit as unit
+import simtk.unit as u
+from simtk.unit import Quantity
 from openmmtools.integrators import GradientDescentMinimizationIntegrator
+from simtk.openmm import Context
 
 class Gradient_descent():
 
@@ -9,8 +11,8 @@ class Gradient_descent():
     _context = None
     _integrator = None
 
-    _initial_step_size = None
-    _tolerance = None
+    _initial_step_size = Quantity(0.01, u.angstroms)
+    _tolerance = Quantity(1.0, u.kilojoules_per_mole)
 
     def __init__(self, explorer):
 
@@ -20,20 +22,23 @@ class Gradient_descent():
 
         system = self._explorer.context.getSystem()
         platform = self._explorer.context.getPlatform()
+        properties = {}
         if platform.getName()=='CUDA':
             properties['CudaPrecision'] = 'mixed'
 
-        self._integrator = GradientDescentMinimizationIntegrator()
+        self._integrator = GradientDescentMinimizationIntegrator(initial_step_size=self._initial_step_size)
         self._context = Context(system, self._integrator, platform, properties)
-        self.set_parameters()
         self._initialized = True
 
-    def set_parameters(self, tolerance=1.0*unit.kilojoules_per_mole, initial_step_size=0.01 * unit.angstroms):
+    def set_parameters(self, tolerance=Quantity(1.0, u.kilojoules_per_mole),
+            initial_step_size=Quantity(0.01, u.angstroms)):
 
-        self._tolerance = tolerance.value_in_unit(unit.kilojoules_per_mole)
-        self._initial_step_size = initial_step_size
+        if not self._initialized:
+            self._initialize()
 
-        self._integrator.setGlobalVariableByName('step_size', initial_step_size / unit.nanometers)
+        self._tolerance = tolerance.in_units_of(u.kilojoules_per_mole)
+        self._initial_step_size = initial_step_size.in_units_of(u.nanometers)
+        self._integrator.setGlobalVariableByName('step_size', self._initial_step_size._value)
 
     def _set_coordinates(self, coordinates):
 
@@ -62,7 +67,7 @@ class Gradient_descent():
         try:
             if steps == 0:
                 delta=np.infty
-                while delta > self._tolerance:
+                while delta > self._tolerance._value:
                     self._integrator.step(50)
                     delta=self._integrator.getGlobalVariableByName('delta_energy')
             else:
@@ -75,6 +80,8 @@ class Gradient_descent():
                 self._explorer.quench.l_bfgs()
             else:
                 raise e
+
+        self._initialize()
 
     def __call__(self, *args, **kwargs):
 

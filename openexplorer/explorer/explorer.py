@@ -104,11 +104,11 @@ class Explorer():
                 # plus perturbation
                 pos[i][j] += diff
                 self.set_coordinates(pos)
-                grad_plus = self.get_gradient()
+                grad_plus = self.get_potential_energy_gradient()
                 # minus perturbation
                 pos[i][j] -= 2*diff
                 self.set_coordinates(pos)
-                grad_minus = self.get_gradient()
+                grad_minus = self.get_potential_energy_gradient()
                 # set the perturbation back to zero
                 pos[i][j] += diff
                 # fill one row of the hessian matrix
