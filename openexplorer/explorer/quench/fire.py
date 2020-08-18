@@ -54,7 +54,7 @@ class FIRE():
 
         self._initialize()
 
-    def replicate_parameters(self, explorer)
+    def replicate_parameters(self, explorer):
 
         timestep = explorer.quench.fire._timestep
         tolerance = explorer.quench.fire._tolerance

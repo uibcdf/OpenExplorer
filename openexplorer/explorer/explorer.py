@@ -28,11 +28,6 @@ class Explorer():
         if system is None:
             raise ValueError('system is needed')
 
-        #temperature = 0*unit.kelvin
-        #friction   = 1.0/unit.picosecond
-        #step_size  = 2.0*unit.femtoseconds
-        #integrator = LangevinIntegrator(temperature, friction, step_size)
-
         step_size  = 1.0*unit.femtoseconds
         integrator = VerletIntegrator(step_size)
         integrator.setConstraintTolerance(0.00001)
@@ -69,20 +64,22 @@ class Explorer():
         tmp_explorer = Explorer(topology, system, pbc, platform)
         tmp_explorer.set_coordinates(coordinates)
 
-        if tmp_explorer.md.langevin._initialized:
-            tmp_explorer.md.langevin.replicate_parameters(self)
+        for ii,jj in vars(tmp_explorer.md).items():
+            if not ii.startswith('_'):
+                if jj._initialized:
+                    jj.replicate_parameters(self)
 
-        if tmp_explorer.quench.l_bfgs._initialized:
-            tmp_explorer.quench.l_bfgs.replicate_paramters(self)
+        for ii,jj in vars(tmp_explorer.quench).items():
+            if not ii.startswith('_'):
+                if jj._initialized:
+                    jj.replicate_parameters(self)
 
-        if tmp_explorer.quench.fire._initialized:
-            tmp_explorer.quench.fire.replicate_paramters(self)
+        for ii,jj in vars(tmp_explorer.move).items():
+            if not ii.startswith('_'):
+                if jj._initialized:
+                    jj.replicate_parameters(self)
 
-        if tmp_explorer.quench.gradient_descent._initialized:
-            tmp_explorer.quench.gradient_descent.replicate_paramters(self)
-
-
-
+        return tmp_explorer
 
     def replicate(self, times=1):
 
@@ -90,14 +87,13 @@ class Explorer():
 
         if times==1:
 
-            output = deepcopy(self)
+            output = self._copy()
 
         else:
 
-            output = [deepcopy(self) for ii in range(times)]
+            output = [self._copy() for ii in range(times)]
 
         return output
-
 
     def set_coordinates(self, coordinates):
 
@@ -106,6 +102,18 @@ class Explorer():
     def get_coordinates(self):
 
         return self.context.getState(getPositions=True).getPositions(asNumpy=True)
+
+    def set_velocities(self, velocities):
+
+        self.context.setVelocities(velocities)
+
+    def set_velocities_to_temperature(self, temperature):
+
+        self.context.setVelocitiesToTemperature(temperature)
+
+    def get_velocities(self):
+
+        return self.context.getState(getVelocities=True).getVelocities(asNumpy=True)
 
     def get_potential_energy(self):
 

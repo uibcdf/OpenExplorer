@@ -39,7 +39,7 @@ class Langevin():
 
         if self._initialized:
 
-            self._integrator.setFriction(self._collision_rate.value_in_unit(1.0/u.picosecond))
+            self._integrator.setFriction(self._collision_rate.value_in_unit(u.picosecond**-1))
             self._integrator.setTemperature(self._temperature.value_in_unit(u.kelvin))
             self._integrator.setStepSize(self._timestep.value_in_unit(u.picoseconds))
 
@@ -63,6 +63,14 @@ class Langevin():
 
         return self._context.getState(getPositions=True).getPositions(asNumpy=True)
 
+    def _set_velocities(self, velocities):
+
+        self._context.setVelocities(velocities)
+
+    def _get_velocities(self):
+
+        return self._context.getState(getVelocities=True).getVelocities(asNumpy=True)
+
     def _coordinates_to_explorer(self):
 
         self._explorer.set_coordinates(self._get_coordinates())
@@ -71,6 +79,15 @@ class Langevin():
 
         self._set_coordinates(self._explorer.get_coordinates())
 
+    def _velocities_to_explorer(self):
+
+        self._explorer.set_velocities(self._get_velocities())
+
+    def _velocities_from_explorer(self):
+
+        self._set_velocities(self._explorer.get_velocities())
+
+
     def run(self, steps=0):
 
         if not self._initialized:
@@ -78,8 +95,10 @@ class Langevin():
             self._initialize()
 
         self._coordinates_from_explorer()
+        self._velocities_from_explorer()
         self._integrator.step(steps)
         self._coordinates_to_explorer()
+        self._velocities_to_explorer()
 
     def __call__(self, *args, **kwargs):
 
