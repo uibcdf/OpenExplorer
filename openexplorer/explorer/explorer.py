@@ -1,9 +1,11 @@
 import numpy as np
 import molsysmt as msm
-import simtk.unit as unit
+import simtk.unit as u
+from simtk.unit import Quantity
 from simtk.openmm import app
 from simtk.openmm import Context, Platform
-from simtk.openmm import VerletIntegrator
+from simtk.openmm import VerletIntegrator, LangevinIntegrator
+from simtk.openmm import CMMotionRemover
 
 class Explorer():
 
@@ -11,6 +13,7 @@ class Explorer():
     context = None
     pbc = False
     n_atoms = 0
+    n_dof = 0
     md = None
     quench = None
     move = None
@@ -28,9 +31,8 @@ class Explorer():
         if system is None:
             raise ValueError('system is needed')
 
-        step_size  = 1.0*unit.femtoseconds
-        integrator = VerletIntegrator(step_size)
-        integrator.setConstraintTolerance(0.00001)
+        integrator = LangevinIntegrator(0*u.kelvin, 1.0/u.picoseconds, 2.0*u.femtoseconds)
+        #integrator.setConstraintTolerance(0.00001)
 
         if platform=='CUDA':
             platform = Platform.getPlatformByName('CUDA')
@@ -42,6 +44,17 @@ class Explorer():
         self.topology = topology
         self.context = Context(system, integrator, platform, properties)
         self.n_atoms = msm.get(self.context, target='system', n_atoms=True)
+
+        self.n_dof = 0
+        for i in range(system.getNumParticles()):
+            if system.getParticleMass(i) > 0*u.dalton:
+                self.n_dof += 3
+        for i in range(system.getNumConstraints()):
+            p1, p2, distance = system.getConstraintParameters(i)
+            if system.getParticleMass(p1) > 0*u.dalton or system.getParticleMass(p2) > 0*u.dalton:
+                self.n_dof -= 1
+        if any(type(system.getForce(i)) == CMMotionRemover for i in range(system.getNumForces())):
+            self.n_dof -= 3
 
         self.pbc = pbc
 
@@ -115,6 +128,10 @@ class Explorer():
 
         return self.context.getState(getVelocities=True).getVelocities(asNumpy=True)
 
+    def get_temperature(self):
+
+        return (2*self.context.getState(getEnergy=True).getKineticEnergy()/(self.n_dof*u.MOLAR_GAS_CONSTANT_R)).in_units_of(u.kelvin)
+
     def get_potential_energy(self):
 
         energy = self.context.getState(getEnergy=True).getPotentialEnergy()
@@ -144,9 +161,9 @@ class Explorer():
 
         n_dof = self.n_atoms*3
         pos = self.get_coordinates()
-        hessian = np.empty((n_dof, n_dof), dtype=float)*unit.kilojoules_per_mole / (unit.nanometers**2)
+        hessian = np.empty((n_dof, n_dof), dtype=float)*u.kilojoules_per_mole / (u.nanometers**2)
         # finite difference step size
-        diff = 0.0001*unit.nanometer
+        diff = 0.0001*u.nanometer
         coef = 1.0 /  (2.0*diff) # 1/2h
 
         for i in range(self.n_atoms):
@@ -166,7 +183,7 @@ class Explorer():
                 hessian[i*3+j] = (grad_plus - grad_minus) * coef
 
         if mass_weighted:
-            mass = np.array([self.context.getSystem().getParticleMass(k).value_in_unit(unit.dalton) for k in range(self.n_atoms)])*unit.dalton
+            mass = np.array([self.context.getSystem().getParticleMass(k).value_in_unit(u.dalton) for k in range(self.n_atoms)])*u.dalton
             mass_weight = 1.0/np.sqrt(mass) * (mass.unit**-0.5)
             mass_weight = np.repeat(mass_weight,3)*mass_weight.unit
             hessian = np.multiply(hessian, mass_weight)*hessian.unit*mass_weight.unit
