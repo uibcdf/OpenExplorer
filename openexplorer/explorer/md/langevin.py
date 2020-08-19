@@ -87,6 +87,9 @@ class Langevin():
 
         self._set_velocities(self._explorer.get_velocities())
 
+    def get_time(self):
+
+        return self._context.getState().getTime()
 
     def run(self, steps=0):
 
