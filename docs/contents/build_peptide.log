@@ -1,4 +1,4 @@
-log started: Wed Aug 19 12:45:11 2020
+log started: Tue Aug 25 21:38:54 2020
 
 Log file: ./leap.log
 >> #
@@ -82,7 +82,7 @@ Log file: ./leap.log
 >> #	Load the main parameter set.
 >> #
 >> parm96 = loadamberparams parm96.dat
-Loading parameters: /home/diego/Myopt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/parm/parm96.dat
+Loading parameters: /home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/parm/parm96.dat
 Reading title:
 PARM96 for DNA, RNA and proteins with TIP3P Water. USE SCEE=1.2 in energy progs
 (UNKNOWN ATOM TYPE: IM)
@@ -96,7 +96,7 @@ PARM96 for DNA, RNA and proteins with TIP3P Water. USE SCEE=1.2 in energy progs
 >> #	Load DNA/RNA libraries
 >> #
 >> loadOff all_nucleic94.lib
-Loading library: /home/diego/Myopt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/all_nucleic94.lib
+Loading library: /home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/all_nucleic94.lib
 Loading: DA
 Loading: DA3
 Loading: DA5
@@ -134,7 +134,7 @@ Loading: RUN
 >> #	amino acid libraries.
 >> #
 >> loadOff all_amino94.lib
-Loading library: /home/diego/Myopt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/all_amino94.lib
+Loading library: /home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/all_amino94.lib
 Loading: ALA
 Loading: ARG
 Loading: ASH
@@ -163,7 +163,7 @@ Loading: TRP
 Loading: TYR
 Loading: VAL
 >> loadOff all_aminoct94.lib
-Loading library: /home/diego/Myopt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/all_aminoct94.lib
+Loading library: /home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/all_aminoct94.lib
 Loading: CALA
 Loading: CARG
 Loading: CASN
@@ -190,7 +190,7 @@ Loading: CVAL
 Loading: NHE
 Loading: NME
 >> loadOff all_aminont94.lib
-Loading library: /home/diego/Myopt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/all_aminont94.lib
+Loading library: /home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/all_aminont94.lib
 Loading: ACE
 Loading: NALA
 Loading: NARG
@@ -217,7 +217,7 @@ Loading: NTYR
 Loading: NVAL
 >> 
 >> loadOff ions94.lib
-Loading library: /home/diego/Myopt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/ions94.lib
+Loading library: /home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/ions94.lib
 Loading: CIO
 Loading: Cl-
 Loading: Cs+
@@ -228,7 +228,7 @@ Loading: MG2
 Loading: Na+
 Loading: Rb+
 >> loadOff solvents.lib
-Loading library: /home/diego/Myopt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/solvents.lib
+Loading library: /home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/dat/leap/lib/solvents.lib
 Loading: CHCL3BOX
 Loading: DC4
 Loading: FB3
@@ -343,22 +343,47 @@ Loading: TPF
 > 
 > set default PBRadii mbondi2
 Using H(N)-modified Bondi radii
-> peptide = sequence { ACE ALA ALA ALA NME }
-Sequence: ACE
-Sequence: ALA
-Sequence: ALA
-Sequence: ALA
-Sequence: NME
+> peptide = sequence { TYR GLY GLY PHE MET }
+Sequence: TYR
+Sequence: GLY
+Sequence: GLY
+Sequence: PHE
+Sequence: MET
 > check peptide
 Checking 'peptide'....
+
+/home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/bin/teLeap: Warning!
+Close contact of 0.816082 angstroms between .R<TYR 1>.A<HD2 19> and .R<GLY 2>.A<H 2>
+
+/home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/bin/teLeap: Warning!
+Close contact of 1.368508 angstroms between .R<TYR 1>.A<HD2 19> and .R<GLY 2>.A<N 1>
+
+/home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/bin/teLeap: Warning!
+Close contact of 0.850645 angstroms between .R<TYR 1>.A<CD2 18> and .R<GLY 2>.A<H 2>
+
+/home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/bin/teLeap: Warning!
+Close contact of 1.363323 angstroms between .R<TYR 1>.A<HE2 17> and .R<GLY 2>.A<O 7>
+
+/home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/bin/teLeap: Warning!
+Close contact of 0.685617 angstroms between .R<PHE 4>.A<HD2 18> and .R<MET 5>.A<H 2>
+
+/home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/bin/teLeap: Warning!
+Close contact of 1.432693 angstroms between .R<PHE 4>.A<HD2 18> and .R<MET 5>.A<N 1>
+
+/home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/bin/teLeap: Warning!
+Close contact of 1.030327 angstroms between .R<PHE 4>.A<CD2 17> and .R<MET 5>.A<H 2>
+
+/home/diego/Myusr/opt/miniconda3/envs/UIBCDF_lab_dev/bin/teLeap: Warning!
+Close contact of 1.451087 angstroms between .R<PHE 4>.A<HE2 16> and .R<MET 5>.A<O 17>
 Checking parameters for unit 'peptide'.
 Checking for bond parameters.
 Checking for angle parameters.
+check:  Warnings: 8
 Unit is OK.
 > charge peptide
 Total unperturbed charge:   0.000000
 Total perturbed charge:     0.000000
-> saveAmberParm peptide tmpypv67cbp.prmtop tmpypv67cbp.inpcrd
+> saveAmberParm peptide tmpvkyj2sq2.prmtop tmpvkyj2sq2.inpcrd
 Checking Unit.
 Building topology.
 Building atom parameters.
@@ -366,22 +391,14 @@ Building bond parameters.
 Building angle parameters.
 Building proper torsion parameters.
 Building improper torsion parameters.
- total 8 improper torsions applied
+ total 20 improper torsions applied
 Building H-Bond parameters.
 Incorporating Non-Bonded adjustments.
 Not Marking per-residue atom chain types.
 Marking per-residue atom chain types.
-  (Residues lacking connect0/connect1 - 
-   these don't have chain types marked:
-
-	res	total affected
-
-	ACE	1
-	NME	1
-  )
  (no restraints)
 > 
 > quit
 	Quit
 
-Exiting LEaP: Errors = 0; Warnings = 0; Notes = 0.
+Exiting LEaP: Errors = 0; Warnings = 8; Notes = 0.

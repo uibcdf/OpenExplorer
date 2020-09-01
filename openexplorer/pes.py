@@ -15,6 +15,7 @@ class PES():
 
     def __init__(self):
 
+        pass
 
     def collect_minimum(self, explorer, similarity_criterion='least_rmsd', similarity_threshold=Quantity(0.01, u.angstroms)):
 
@@ -41,10 +42,10 @@ class PES():
 
         return inherent_structure_index
 
-    def add_transition_between_basins(self, from=None, to=None):
+    def add_transition_between_basins(self, origin=None, end=None):
 
-        if to in self.basins_transition_network[from]:
-            self.basins_transition_network[from][to]['weight']+=1
+        if to in self.basins_transition_network[origin]:
+            self.basins_transition_network[origin][end]['weight']+=1
         else:
-            self.basins_transition_network.add_edge(from, to, weight=1)
+            self.basins_transition_network.add_edge(origin, end, weight=1)
 

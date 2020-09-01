@@ -9,11 +9,12 @@ class RandomDihedralShifts():
     _explorer = None
     _initialized = False
 
-    _stepsize = Quantity(value=5.0, unit=u.degrees)
-    _quartets = None
-    _n_quartets = None
-    _blocks = None
-    _dihedral_angles = 'all'
+    mode = 'all'
+    stepsize = Quantity(value=5.0, unit=u.degrees)
+    dihedral_angles = 'all'
+    quartets = None
+    n_quartets = None
+    blocks = None
 
     def __init__(self, explorer):
 
@@ -27,15 +28,19 @@ class RandomDihedralShifts():
 
         self._initialized = True
 
-    def set_parameters(self, stepsize=Quantity(value=5.0, unit=u.degrees), dihedral_angles='all', quartets=None, blocks=None):
+    def set_parameters(self, mode='all', dihedral_angles='all', stepsize=Quantity(value=5.0, unit=u.degrees), quartets=None, blocks=None):
 
-        self._stepsize = stepsize.in_units_of(u.degrees)
+        self.stepsize = stepsize.in_units_of(u.degrees)
+        self.mode = mode
 
         if quartets is not None:
-            self._quartets = quartets
-            self._n_quartets = self._quartets.shape[0]
+            self.dihedral_angles = None
+            self.quartets = quartets
+            self.n_quartets = self._quartets.shape[0]
             if blocks is not None:
-                self._blocks = blocks
+                self.blocks = blocks
+            else:
+                self.blocks = get_blocks(quartets)
         else:
             self._quartets = None
             self._blocks = None

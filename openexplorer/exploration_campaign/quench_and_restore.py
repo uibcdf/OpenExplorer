@@ -90,7 +90,7 @@ class QuenchAndRestore():
             velocities = self.explorer.get_velocities()
             self.explorer.quench.l_bfgs()
             new_inherent_structure_index = self.pes.collect(self.explorer, similarity_threshold=self.similarity_threshold)
-            self.pes.add_transition_between_minima(from=inherent_structure_index, to=new_inherent_structure_index)
+            self.pes.add_transition_between_minima(origin=inherent_structure_index, end=new_inherent_structure_index)
             self.trajectory_inherent_structures.append(new_inherent_structure_index)
             self.time.append(self.explorer.md.langevin.get_time())
             self.explorer.set_coordinates(coordinates)
