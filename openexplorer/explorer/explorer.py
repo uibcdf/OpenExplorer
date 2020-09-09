@@ -24,6 +24,7 @@ class Explorer():
         from .quench import Quench
         from .move import Move
         from .distance import Distance
+        from .acceptance import Acceptance
 
         if topology is None:
             raise ValueError('topology is needed')
@@ -65,6 +66,7 @@ class Explorer():
         self.quench = Quench(self)
         self.move = Move(self)
         self.distance = Distance(self)
+        self.acceptance = Acceptance(self)
 
     def _copy(self):
 
