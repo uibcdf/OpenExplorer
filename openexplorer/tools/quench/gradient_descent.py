@@ -4,7 +4,7 @@ from simtk.unit import Quantity
 from openmmtools.integrators import GradientDescentMinimizationIntegrator
 from simtk.openmm import Context
 
-class Gradient_descent():
+class GradientDescent():
 
     _explorer = None
     _initialized = False

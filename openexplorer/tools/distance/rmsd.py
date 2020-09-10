@@ -1,5 +1,3 @@
-from molsysmt import select, rmsd
-
 class RMSD():
 
     _explorer = None
@@ -15,11 +13,15 @@ class RMSD():
 
     def set_parameters(self, selection='atom_type!="H"', syntaxis='MolSysMT'):
 
+        from molsysmt import select
+
         self._selection = selection
         self._syntaxis = syntaxis
         self._atom_indices = select(self._explorer, selection=selection, syntaxis=syntaxis)
 
     def run(self, reference, selection='atom_type!="H"', syntaxis='MolSysMT'):
+
+        from molsysmt import rmsd
 
         if selection!=self._selection:
             self.set_parameters(selection=selection, syntaxis=syntaxis)

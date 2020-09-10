@@ -1,7 +1,6 @@
 import numpy as np
 from simtk.unit import Quantity
 import simtk.unit as u
-from molsysmt import select, translate
 import numpy as np
 
 class CartesianShifts():
@@ -43,6 +42,7 @@ class CartesianShifts():
                        stepsize=Quantity(value=0.25, unit=u.nanometers), mode_steps='random', syntaxis='MolSysMT'):
 
         if selection is not None:
+            from molsysmt import select
             atom_indices =  select(self._explorer, selection=selection, syntaxis=syntaxis)
 
         self.atom_indices = atom_indices
@@ -67,6 +67,8 @@ class CartesianShifts():
         self._initialized = explorer.move.cartesian_shifts._initialized
 
     def run(self):
+
+        from molsysmt import translate
 
         if not self._initialized:
 

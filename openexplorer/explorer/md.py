@@ -1,16 +1,16 @@
-from .langevin import Langevin
 
 class MD():
 
     _explorer = None
 
     langevin = None
-    verlet = None
 
     def __init__(self, explorer):
 
+        from openexplorer.tools import md
+
         self._explorer = explorer
 
-        self.langevin = Langevin(explorer)
+        self.langevin = md.Langevin(explorer)
 
 

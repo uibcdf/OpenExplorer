@@ -1,8 +1,6 @@
 import numpy as np
 from simtk.unit import Quantity
 import simtk.unit as u
-from molsysmt import set_dihedral_angles
-from molsysmt import covalent_dihedral_quartets, covalent_blocks
 import numpy as np
 
 class DihedralShifts():
@@ -34,6 +32,8 @@ class DihedralShifts():
 
     def set_parameters(self, dihedral_angle='all', selection='all', quartets=None, blocks=None, mode_angles='random', n_random_angles=1,
                        stepsize=Quantity(value=180.0, unit=u.degrees), mode_steps='random', syntaxis='MolSysMT'):
+
+        from molsysmt import covalent_blocks, covalent_dihedral_quartets
 
         self.mode_angles = mode_angles
         self.n_random_angles = n_random_angles
@@ -181,6 +181,8 @@ class DihedralShifts():
         self._initialized = explorer.move._initialized
 
     def run(self):
+
+        from molsysmt import set_dihedral_angles
 
         if not self._initialized:
 
