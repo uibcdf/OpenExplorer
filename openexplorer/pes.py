@@ -72,9 +72,9 @@ class PES():
 
         return inherent_structure_index
 
-    def add_transition_between_basins(self, origin=None, end=None):
+    def add_transition_between_minima(self, origin=None, end=None):
 
-        if to in self.basins_transition_network[origin]:
+        if end in self.basins_transition_network[origin]:
             self.basins_transition_network[origin][end]['weight']+=1
         else:
             self.basins_transition_network.add_edge(origin, end, weight=1)

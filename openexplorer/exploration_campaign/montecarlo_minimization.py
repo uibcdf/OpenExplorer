@@ -43,12 +43,12 @@ class MonteCarloMinimization():
         self.pes.reset()
         self.trajectory_inherent_structures = []
 
-    def run(self, n_steps=1, tqdm=False):
+    def run(self, n_steps=1, progress_bar=False):
 
-        if tqdm:
+        if progress_bar:
 
-            from tqdm import tqdm as _tqdm
-            iterator=_tqdm(range(n_steps))
+            from tqdm import tqdm
+            iterator=tqdm(range(n_steps))
 
         else:
 

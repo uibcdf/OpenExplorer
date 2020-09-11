@@ -2,20 +2,19 @@ import numpy as np
 import simtk.unit as u
 from simtk.unit import Quantity
 from openmmtools.constants import kB
-from tqdm import tqdm
+from openexplorer.tools.quench import L_BFGS
+from openexplorer.tools.md import Langevin
 
 class QuenchAndRestore():
 
     explorer = None
 
-    md_time_before_quench = Quantity(1.0, u.picoseconds)
-    similarity_threshold = Quantity(0.010, u.angstroms)
+    quench = None
+    md = None
 
-    temperature = Quantity(500.0, u.kelvin)
-    collision_rate = Quantity(1.0, u.picoseconds**-1)
-    md_timestep = Quantity(2.0, u.femtoseconds)
 
-    md_steps_before_quench = int(md_time_before_quench/md_timestep)
+    md_time_before_quench = None
+    md_steps_before_quench = None
 
     pes = None
     time = []*u.nanoseconds
@@ -23,77 +22,70 @@ class QuenchAndRestore():
 
     initialized = False
 
-    def __init__(self, explorer):
+    def __init__(self, explorer, md_time_before_quench = Quantity(1.0, u.picoseconds), quench=L_BFGS, md=Langevin):
 
         from openexplorer import PES
 
         self.explorer = explorer
 
-        self.set_parameters()
-        self.reset()
+        self.quench = quench(self.explorer)
+        self.md = md(self.explorer)
 
-    def set_parameters(self, md_time_before_quench = Quantity(1.0, u.picoseconds), temperature = Quantity(500.0, u.kelvin),
-            collision_rate = Quantity(1.0, u.picoseconds**-1), md_timestep = Quantity(2.0, u.femtoseconds),
-            similarity_threshold = Quantity(0.010, u.angstroms)):
+        self.md.set_parameters(temperature=Quantity(500.0, u.kelvin))
 
         self.md_time_before_quench = md_time_before_quench
-        self.similarity_threshold = similarity_threshold
+        md_timestep = self.md.get_parameters()['timestep']
+        self.md_steps_before_quench = int(self.md_time_before_quench/md_timestep)
 
-        self.temperature = temperature
-        self.collision_rate = collision_rate
-        self.md_timestep = md_timestep
+        self.pes=PES(self.explorer.topology, self.explorer.context.getSystem())
 
-        self.md_steps_before_quench = int(self.md_time_before_quench/self.md_timestep)
+        self.reset()
 
-        self.explorer.md.langevin.set_parameters(temperature=self.temperature, timestep=self.md_timestep,
-                                                 collision_rate=self.collision_rate)
 
     def reset(self):
 
-        from openexplorer import PES
-
-        self.pes = PES()
-        self.time = []*u.nanoseconds
+        self.pes.reset()
         self.trajectory_inherent_structures = []
+        self.time = []*u.nanoseconds
 
         self.initialized = False
 
-    def run(self, n_quenchs=1, time=None, verbose=False):
+    def run(self, n_steps=1, time=None, progress_bar=False):
+
+        if time is not None:
+            n_steps = int(time/self.md_time_before_quench)
 
         if not self.initialized:
             coordinates = self.explorer.get_coordinates()
             velocities = self.explorer.get_velocities()
-            self.explorer.quench.l_bfgs()
-            inherent_structure_index = self.pes.collect(self.explorer, similarity_threshold=self.similarity_threshold)
-            self.trajectory_inherent_structures.append(inherent_structure_index)
-            self.time.append(self.explorer.md.langevin.get_time())
+            self.quench()
+            isi = self.pes.collect_minimum(self.explorer)
+            self.trajectory_inherent_structures.append(isi)
+            self.time.append(self.md.get_time())
             self.explorer.set_coordinates(coordinates)
             self.explorer.set_velocities(velocities)
             self.initialized = True
-
         else:
-            inherent_structure_index = self.trajectory_inherent_sturctures[-1]
+            isi = self.trajectory_inherent_sturctures[-1]
 
-        if time is not None:
-            n_iterations = int(time/self.md_time_before_quench)
-
-        if verbose:
-            iterator = tqdm(range(n_quenchs))
+        if progress_bar:
+            from tqdm import tqdm
+            iterator = tqdm(range(n_steps))
         else:
-            iterator = range(n_quenchs)
+            iterator = range(n_steps)
 
 
         for iteration_index in iterator:
 
-            self.explorer.md.langevin(self.md_steps_before_quench)
+            self.md(self.md_steps_before_quench)
             coordinates = self.explorer.get_coordinates()
             velocities = self.explorer.get_velocities()
-            self.explorer.quench.l_bfgs()
-            new_inherent_structure_index = self.pes.collect(self.explorer, similarity_threshold=self.similarity_threshold)
-            self.pes.add_transition_between_minima(origin=inherent_structure_index, end=new_inherent_structure_index)
-            self.trajectory_inherent_structures.append(new_inherent_structure_index)
-            self.time.append(self.explorer.md.langevin.get_time())
+            self.quench()
+            new_isi = self.pes.collect_minimum(self.explorer)
+            self.pes.add_transition_between_minima(origin=isi, end=new_isi)
+            self.trajectory_inherent_structures.append(new_isi)
+            self.time.append(self.md.get_time())
             self.explorer.set_coordinates(coordinates)
             self.explorer.set_velocities(velocities)
-            inherent_structure_index=new_inherent_structure_index
+            isi=new_isi
 

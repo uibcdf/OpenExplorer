@@ -47,6 +47,15 @@ class Langevin():
 
             self._initialize()
 
+    def get_parameters(self):
+
+        parameters={
+            'timestep': self._timestep,
+            'temperature': self._temperature,
+            'collision_rate': self._collision_rate }
+
+        return parameters
+
     def replicate_parameters(self, explorer):
 
         timestep = explorer.md.langevin._timestep

@@ -3,53 +3,46 @@ import simtk.unit as u
 from simtk.unit import Quantity
 from openmmtools.constants import kB
 from .montecarlo import Acceptance_Metropolis_Hastings
+from openexplorer.tools.quench import L_BFGS
+from openexplorer.tools.md import Langevin
 
 class SuccesiveConfinement():
 
     explorer = None
 
-    n_confinements_per_basin = 250
-    md_time_period_before_quench = Quantity(1.0, u.picoseconds)
-    similarity_threshold = Quantity(0.01, u.angstroms)
+    quench = None
+    md = None
 
-    temperature = Quantity(500.0, u.kelvin)
-    collision_rate = Quantity(1.0, u.picoseconds**-1)
-    md_timestep = Quantity(2.0, u.femtoseconds)
+    n_confinements_per_basin = None
+    md_time_period_before_quench = None
+    md_steps_before_quench = None
 
     pes = None
     time_per_confinement = []*u.nanoseconds
     trajectory_inherent_structures = []
-    n_basins_explored = 0
 
     initialized = False
 
-    def __init__(self, explorer):
+    def __init__(self, explorer, n_confinements_per_basin=250, md_time_before_quench=Quantity(1.0, u.picoseconds), quench=L_BFGS, md=Langevin):
 
         self.explorer = explorer
 
-        self.set_parameters()
+        self.quench = quench(self.explorer)
+        self.md = md(self.explorer)
+
+        self.md_time_before_quench = md_time_before_quench
+        md_timestep = self.md.get_parameters()['timestep']
+        self.md_steps_before_quench = int(self.md_time_before_quench/md_timestep)
+
+        self.pes=PES(self.explorer.topology, self.explorer.context.getSystem())
+
         self.reset()
-
-    def set_parameters(self, n_confinements_per_basin = 250, md_time_period_before_quench = Quantity(1.0, u.picoseconds),
-            temperature = Quantity(500.0, u.kelvin), collision_rate = Quantity(1.0, u.picoseconds**-1),
-            md_timestep = Quantity(2.0, u.femtoseconds), similarity_threshold = Quantity(0.01, u.angstroms)):
-
-        self.n_confinements_per_basin = n_confinements_per_basin
-        self.md_time_period_before_quench = md_time_period_before_quench
-
-        self.temperature = temperature
-        self.collision_rate = collision_rate
-        self.md_timestep = md_timestep
-
-        self.explorer.md.langevin.set_parameters(temperature=self.temperature,
-                timestep=self.md_timestep, collision_rate=self.collision_rate)
 
     def reset(self):
 
         self.pes = PES()
         self.time_per_confinement = []*u.nanoseconds
         self.trajectory_inherent_structures = []
-        self.n_basins_explored = 0
 
         self.initialized = False
 
