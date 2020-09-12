@@ -14,7 +14,7 @@ class PES():
     potential_energy_saddle_points = []*u.kilojoules_per_mole
     n_minima = 0
     n_saddle_points = 0
-    basins_transition_network = Graph()
+    basins_network = Graph()
     disconnectivity_transition_network = Graph()
     global_minimum_index = None
     global_minimum_potential_energy = infty*u.kilojoules_per_mole
@@ -32,7 +32,7 @@ class PES():
         self.potential_energy_saddle_points = []*u.kilojoules_per_mole
         self.n_minima = 0
         self.n_saddle_points = 0
-        self.basins_transition_network = Graph()
+        self.basins_network = Graph()
         self.disconnectivity_transition_network = Graph()
         self.global_minimum_index = None
         self.global_minimum_potential_energy = infty*u.kilojoules_per_mole
@@ -63,7 +63,7 @@ class PES():
             self.minima.append(coordinates)
             self.potential_energy_minima.append(potential_energy)
             inherent_structure_index=self.n_minima
-            self.basins_transition_network.add_node(inherent_structure_index)
+            self.basins_network.add_node(inherent_structure_index)
             self.n_minima+=1
 
             if self.global_minimum_potential_energy > potential_energy:
@@ -72,10 +72,7 @@ class PES():
 
         return inherent_structure_index
 
-    def add_transition_between_minima(self, origin=None, end=None):
+    def add_pair_of_neighbor_minima(self, minimum_i=None, minimum_j=None):
 
-        if end in self.basins_transition_network[origin]:
-            self.basins_transition_network[origin][end]['weight']+=1
-        else:
-            self.basins_transition_network.add_edge(origin, end, weight=1)
+        self.basins_network.add_edge(minimum_i, minimum_j)
 
