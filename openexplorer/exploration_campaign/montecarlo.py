@@ -64,34 +64,4 @@ class MonteCarlo ():
                 self.reporter.report(self)
 
 
-class Acceptance_Metropolis_Hastings():
-
-    def __init__(self, temperature, seed=None):
-
-        self.kT = kB*temperature
-        self.random_generator = np.random.default_rng(seed)
-
-    def decide(self, energy, new_energy):
-
-        accept=False
-
-        if new_energy < energy:
-            accept=True
-        else:
-            accept = True
-            weight = np.exp(-(new_energy - energy) / self.kT)
-            w = min(1.0, weight)
-            rand = self.random_generator.random()
-            if rand > w:
-                accept = False
-
-        return accept
-
-    def __call__(self, energy, new_energy):
-        return self.decide(energy, new_energy)
-
-    def reset(self, temperature, seed=None):
-
-        self.kT = kB*temperature
-        self.random_generator = np.random.default_rng(seed)
 

@@ -57,16 +57,7 @@ class SuccessiveConfinement():
 
         self.initialized = False
 
-    def run(self, n_basins=None, progress_bar=False):
-
-        if progress_bar:
-
-            from tqdm import tqdm
-            iterator = tqdm(range(self.n_confinements_per_basin))
-
-        else:
-
-            iterator = range(self.n_confinements_per_basin)
+    def run(self, n_basins=None, progress_bar=False, verbose=False):
 
         temperature = self.md.get_parameters()['temperature']
         n_basins_explored = 0
@@ -98,6 +89,15 @@ class SuccessiveConfinement():
                 self.trajectory_inherent_structures[current_basin_index]=[]
 
             pre_coordinates = current_basin_coordinates
+
+            if progress_bar:
+
+                from tqdm import tqdm
+                iterator = tqdm(range(self.n_confinements_per_basin))
+
+            else:
+
+                iterator = range(self.n_confinements_per_basin)
 
             for _ in iterator:
 
@@ -140,4 +140,7 @@ class SuccessiveConfinement():
 
             n_basins_explored+=1
             self.basins_explored.add(current_basin_index)
+
+            if verbose:
+                print('Basin {} explored. {} basins detected.'.format(current_basin_index, self.pes.n_minima))
 
