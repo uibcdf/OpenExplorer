@@ -1,7 +1,9 @@
+from IPython.display import Markdown, display
 import numpy as np
-from simtk.unit import Quantity
-import simtk.unit as u
+import simtk.unit as unit
 import numpy as np
+from pandas import Series
+import molsysmt as msm
 
 class DihedralShifts():
 
@@ -11,8 +13,8 @@ class DihedralShifts():
     mode_angles = 'random' # 'all', 'random'
     n_random_angles = 1
     mode_steps = 'random' # 'random', 'random_orientation', 'rmsd', 'random_rmsd'
-    stepsize = Quantity(value=180.0, unit=u.degrees)
-    quartets = None
+    step_size = 180.0*unit.degrees
+    quartets = 'all'
     n_quartets = None
     blocks = None
 
@@ -30,14 +32,27 @@ class DihedralShifts():
 
         self.set_parameters()
 
-    def set_parameters(self, dihedral_angle='all', selection='all', quartets=None, blocks=None, mode_angles='random', n_random_angles=1,
-                       stepsize=Quantity(value=180.0, unit=u.degrees), mode_steps='random', syntaxis='MolSysMT'):
+    def show_parameters(self, verbose=True):
 
-        from molsysmt import covalent_blocks, covalent_dihedral_quartets
+        tmp_dict = {
+        'mode_angles': self.mode_angles,
+        'mode_steps': self.mode_steps,
+        'quartets': self.quartets,
+        'n_random_angles': self.n_random_angles,
+        'step_size': self.step_size
+        }
+
+        if verbose:
+            display(Markdown(Series(tmp_dict, name='parameters').to_markdown()))
+        else:
+            return tmp_dict
+
+    def set_parameters(self, dihedral_angle='all', selection='all', quartets=None, blocks=None, mode_angles='random', n_random_angles=1,
+                       step_size= 180.0*unit.degrees, mode_steps='random', syntaxis='MolSysMT'):
 
         self.mode_angles = mode_angles
         self.n_random_angles = n_random_angles
-        self.stepsize = stepsize.in_units_of(u.degrees)
+        self.step_size = step_size.in_units_of(unit.degrees)
         self.mode_steps = mode_steps
 
         if quartets is not None:
@@ -45,7 +60,7 @@ class DihedralShifts():
             if blocks is None:
                 self.blocks = []
                 for quartet in self.quartets:
-                    tmp_blocks = covalent_blocks(self._explorer, remove_bonds=[quartet[1], quartet[2]])
+                    tmp_blocks = msm.covalent_blocks(self._explorer, remove_bonds=[quartet[1], quartet[2]])
                     self.blocks.append(tmp_blocks)
                 self.blocks = np.array(self.blocks)
             else:
@@ -61,25 +76,25 @@ class DihedralShifts():
 
             if dihedral_angle == 'all':
 
-                phi_q, phi_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='phi',
+                phi_q, phi_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='phi',
                                                             selection=sel_not_pro,
                                                             with_blocks=True, syntaxis=syntaxis)
-                psi_q, psi_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='psi',
+                psi_q, psi_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='psi',
                                                             selection=sel,
                                                             with_blocks=True, syntaxis=syntaxis)
-                chi1_q, chi1_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='chi1',
+                chi1_q, chi1_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='chi1',
                                                               selection=sel_not_pro,
                                                               with_blocks=True, syntaxis=syntaxis)
-                chi2_q, chi2_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='chi2',
+                chi2_q, chi2_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='chi2',
                                                               selection=sel_not_pro,
                                                               with_blocks=True, syntaxis=syntaxis)
-                chi3_q, chi3_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='chi3',
+                chi3_q, chi3_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='chi3',
                                                               selection=sel,
                                                               with_blocks=True, syntaxis=syntaxis)
-                chi4_q, chi4_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='chi4',
+                chi4_q, chi4_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='chi4',
                                                               selection=sel,
                                                               with_blocks=True, syntaxis=syntaxis)
-                chi5_q, chi5_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='chi5',
+                chi5_q, chi5_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='chi5',
                                                               selection=sel,
                                                               with_blocks=True, syntaxis=syntaxis)
 
@@ -102,10 +117,10 @@ class DihedralShifts():
 
             elif dihedral_angle == 'backbone':
 
-                phi_q, phi_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='phi',
+                phi_q, phi_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='phi',
                                                             selection=sel_not_pro,
                                                             with_blocks=True, syntaxis=syntaxis)
-                psi_q, psi_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='psi',
+                psi_q, psi_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='psi',
                                                             selection=sel,
                                                             with_blocks=True, syntaxis=syntaxis)
 
@@ -122,19 +137,19 @@ class DihedralShifts():
 
             elif dihedral_angle == 'sidechains':
 
-                chi1_q, chi1_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='chi1',
+                chi1_q, chi1_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='chi1',
                                                               selection=sel_not_pro,
                                                               with_blocks=True, syntaxis=syntaxis)
-                chi2_q, chi2_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='chi2',
+                chi2_q, chi2_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='chi2',
                                                               selection=sel_not_pro,
                                                               with_blocks=True, syntaxis=syntaxis)
-                chi3_q, chi3_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='chi3',
+                chi3_q, chi3_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='chi3',
                                                               selection=sel,
                                                               with_blocks=True, syntaxis=syntaxis)
-                chi4_q, chi4_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='chi4',
+                chi4_q, chi4_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='chi4',
                                                               selection=sel,
                                                               with_blocks=True, syntaxis=syntaxis)
-                chi5_q, chi5_blk = covalent_dihedral_quartets(self._explorer, dihedral_angle='chi5',
+                chi5_q, chi5_blk = msm.covalent_dihedral_quartets(self._explorer, dihedral_angle='chi5',
                                                               selection=sel,
                                                               with_blocks=True, syntaxis=syntaxis)
 
@@ -155,7 +170,7 @@ class DihedralShifts():
 
             else:
 
-                self.quartets, self.blocks = covalent_dihedral_quartets(self._explorer,
+                self.quartets, self.blocks = msm.covalent_dihedral_quartets(self._explorer,
                                                                         dihedral_angle=dihedral_angle,
                                                                         selection=selection, syntaxis=syntaxis)
 
@@ -169,7 +184,7 @@ class DihedralShifts():
 
         self.mode_angles = explorer.move.dihedral_shifts.mode_angles
         self.n_random_angles = explorer.move.dihedral_shifts.n_random_angles
-        self.stepsize = explorer.move.dihedral_shifts.stepsize
+        self.step_size = explorer.move.dihedral_shifts.step_size
         self.mode_steps = explorer.move.dihedral_shifts.mode_steps
         self.quartets = explorer.move.dihedral_shifts.quartets
         self.n_quartets = explorer.move.dihedral_shifts.n_quartets
@@ -182,8 +197,6 @@ class DihedralShifts():
 
     def run(self):
 
-        from molsysmt import set_dihedral_angles
-
         if not self._initialized:
 
             self._initialize()
@@ -192,18 +205,18 @@ class DihedralShifts():
 
             if self.mode_steps == 'random_orientation':
 
-                self.shifts_moved = self._rnd_gen_steps.choice([-1, 1], size=self.n_quartets)*self.stepsize
+                self.shifts_moved = self._rnd_gen_steps.choice([-1, 1], size=self.n_quartets)*self.step_size
 
             elif self.mode_steps == 'random':
 
-                self.shifts_moved = self._rnd_gen_steps.uniform([-1.0, 1.0], size=self.n_quartets)*self.stepsize
+                self.shifts_moved = self._rnd_gen_steps.uniform([-1.0, 1.0], size=self.n_quartets)*self.step_size
 
             elif self.mode_steps == 'rmsd':
 
                 v = self._rnd_gen_steps.uniform(-1.0,1.0, self.n_quartets)
                 norm = np.linalg.norm(v)
                 uv = v/norm
-                self.shifts_moved = self.stepsize * uv
+                self.shifts_moved = self.step_size * uv
 
             elif self.mode_steps == 'random_rmsd':
 
@@ -211,10 +224,10 @@ class DihedralShifts():
                 norm = np.linalg.norm(v)
                 uv = v/norm
                 r = np.random.uniform(0.0, 1.0, 1)
-                self.shifts_moved = self.stepsize * r * uv
+                self.shifts_moved = self.step_size * r * uv
 
 
-            set_dihedral_angles(self._explorer, quartets=self.quartets, angles_shifts=self.shifts_moved, blocks=self.blocks,
+            msm.set_dihedral_angles(self._explorer, quartets=self.quartets, angles_shifts=self.shifts_moved, blocks=self.blocks,
                                 pbc=self._explorer.pbc)
 
         elif self.mode_angles == 'random':
@@ -224,18 +237,18 @@ class DihedralShifts():
 
             if self.mode_steps == 'random_orientation':
 
-                self.shifts_moved = self._rnd_gen_steps.choice([-1, 1], size=self.n_random_angles)*self.stepsize
+                self.shifts_moved = self._rnd_gen_steps.choice([-1, 1], size=self.n_random_angles)*self.step_size
 
             elif self.mode_steps == 'random':
 
-                self.shifts_moved = self._rnd_gen_steps.uniform([-1.0, 1.0], size=self.n_random_angles)*self.stepsize
+                self.shifts_moved = self._rnd_gen_steps.uniform(-1.0, 1.0, size=self.n_random_angles)*self.step_size
 
             elif self.mode_steps == 'rmsd':
 
                 v = self._rnd_gen_steps.uniform(-1.0,1.0, self.n_random_angles)
                 norm = np.linalg.norm(v)
                 uv = v/norm
-                self.shifts_moved = self.stepsize * r * uv
+                self.shifts_moved = self.step_size * r * uv
 
             elif self.mode_steps == 'random_rmsd':
 
@@ -243,9 +256,9 @@ class DihedralShifts():
                 norm = np.linalg.norm(v)
                 uv = v/norm
                 r = np.random.uniform(0.0, 1.0, 1)
-                self.shifts_moved = self.stepsize * r * uv
+                self.shifts_moved = self.step_size * r * uv
 
-            set_dihedral_angles(self._explorer, quartets=self.quartets[self.quartets_moved], angles_shifts=self.shifts_moved,
+            msm.set_dihedral_angles(self._explorer, quartets=self.quartets[self.quartets_moved], angles_shifts=self.shifts_moved,
                                 blocks=self.blocks[self.quartets_moved], pbc=self._explorer.pbc)
 
 
