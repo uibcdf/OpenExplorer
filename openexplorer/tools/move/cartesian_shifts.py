@@ -58,6 +58,9 @@ class CartesianShifts():
 
     def show_parameters(self, verbose=True):
 
+        if not self._initialized:
+            self._initialize()
+
         tmp_dict = {
                 'mode_atoms': self.mode_atoms,
                 'mode_steps': self.mode_steps,

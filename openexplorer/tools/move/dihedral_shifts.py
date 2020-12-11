@@ -34,6 +34,9 @@ class DihedralShifts():
 
     def show_parameters(self, verbose=True):
 
+        if not self._initialized:
+            self._initialize()
+
         tmp_dict = {
         'mode_angles': self.mode_angles,
         'mode_steps': self.mode_steps,
