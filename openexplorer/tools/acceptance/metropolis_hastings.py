@@ -34,7 +34,7 @@ class MetropolisHastings():
         self.reset()
         self._initialized = True
 
-    def set_parameters(self, temperature=Quantity(310.15, u.kelvin)):
+    def set_parameters(self, temperature=Quantity(298.0, u.kelvin)):
 
         self.temperature = temperature.in_units_of(u.kelvin)
         self._kT = (kB*temperature).in_units_of(u.kilojoules_per_mole)
@@ -78,6 +78,7 @@ class MetropolisHastings():
 
                 self._explorer.set_coordinates(self.previous_coordinates)
                 self.previous_potential_energy = self._explorer.get_potential_energy()
+                self._explorer.set_coordinates(current_coordinates)
 
         else:
 
@@ -94,7 +95,6 @@ class MetropolisHastings():
 
         if potential_energy is None:
 
-            self._explorer.set_coordinates(self.coordinates)
             self.potential_energy = self._explorer.get_potential_energy()
 
         else:
@@ -120,17 +120,10 @@ class MetropolisHastings():
 
         if update_explorer:
 
-            if self.accepted:
-
-                self._explorer.set_coordinates(self.coordinates)
-
-            else:
+            if not self.accepted:
 
                 self._explorer.set_coordinates(self.previous_coordinates)
 
-        else:
-
-            self._explorer.set_coordinates(current_coordinates)
 
         self.n_tries += 1
 
