@@ -10,15 +10,16 @@ from simtk.openmm import CMMotionRemover
 class Explorer():
 
     topology = None
+    system = None
     context = None
-    pbc = False
-    n_atoms = 0
-    n_dof = 0
+
     md = None
+    mc = None
     quench = None
     move = None
+    distance = None
 
-    def __init__(self, topology=None, system=None, pbc=False, platform='CUDA'):
+    def __init__(self, topology=None, system=None, coordinates=False, platform='CUDA'):
 
         from .md import MD
         from .quench import Quench
@@ -43,41 +44,36 @@ class Explorer():
             properties = {}
 
         self.topology = topology
+        self.system = system
         self.context = Context(system, integrator, platform, properties)
-        self.n_atoms = msm.get(self.context, target='system', n_atoms=True)
-
-        self.n_dof = 0
-        for i in range(system.getNumParticles()):
-            if system.getParticleMass(i) > 0*u.dalton:
-                self.n_dof += 3
-        for i in range(system.getNumConstraints()):
-            p1, p2, distance = system.getConstraintParameters(i)
-            if system.getParticleMass(p1) > 0*u.dalton or system.getParticleMass(p2) > 0*u.dalton:
-                self.n_dof -= 1
-        if any(type(system.getForce(i)) == CMMotionRemover for i in range(system.getNumForces())):
-            self.n_dof -= 3
-
-        self.pbc = pbc
-
-        if self.pbc:
-            raise NotImplementedError
 
         self.md = MD(self)
         self.quench = Quench(self)
         self.move = Move(self)
         self.distance = Distance(self)
-        self.acceptance = Acceptance(self)
+        self.mc = Acceptance(self)
+
+    def get_number_of_degrees_of_freedom(self):
+
+        n_dof = 0
+        for ii in range(self.system.getNumParticles()):
+            if self.system.getParticleMass(ii) > 0*u.dalton:
+                n_dof += 3
+        for ii in range(system.getNumConstraints()):
+            p1, p2, distance = self.system.getConstraintParameters(ii)
+            if self.system.getParticleMass(p1) > 0*u.dalton or self.system.getParticleMass(p2) > 0*u.dalton:
+                n_dof -= 1
+        if any(type(system.getForce(ii)) == CMMotionRemover for ii in range(system.getNumForces())):
+            n_dof -= 3
 
     def _copy(self):
 
         topology = self.topology
-        coordinates = self.get_coordinates()
         system = self.context.getSystem()
         platform = self.context.getPlatform().getName()
-        pbc = self.pbc
 
-        tmp_explorer = Explorer(topology, system, pbc, platform)
-        tmp_explorer.set_coordinates(coordinates)
+        tmp_explorer = Explorer(topology, system, platform)
+        tmp_explorer.set_coordinates(coordinates.get_coordinates())
 
         for ii,jj in vars(tmp_explorer.md).items():
             if not ii.startswith('_'):
