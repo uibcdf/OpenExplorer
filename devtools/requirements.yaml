@@ -13,7 +13,10 @@ production:
     - conda-forge
     - *setup_channels
   dependencies: &production_dependencies
+    - *setup_dependencies
     - pyunitwizard
+    - openmm
+    - molsysmt
 
 test:
   channels: &test_channels

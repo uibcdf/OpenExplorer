@@ -22,8 +22,6 @@ updated, execute the Python script 'broadcast\_requirements.py'. This last step 
 individual yaml files to create and update, following the instructions of the next section, different conda
 environments depending on the tasks you need to do.
 
-
-
 ## How to prepare the conda environments to work with this repository
 
 You will find here a directory called 'conda-envs'. This directory contains all the info and
@@ -45,7 +43,30 @@ Each yaml file has the list of required packages and conda channels in case you 
 - Run the library tests ('test_env.yaml')
 
 This yaml files were produced with the script 'broadcast_requirements.py' and the file
-'requirements.yaml',
+'requirements.yaml' as indicated in the previous exception.
+
+Finnally, to create a conda environment use the script 'create_conda_env.py' the following way:
+
+```bash
+# In this case the name of the environment is also "OpenExplorer"
+# the Python version of our new environment is 3.7
+# and the yaml file will be the one to work on the library development
+python create_conda_env.py -n OpenExplorer -p 3.7 development_env.yaml
+```
+
+You can already activate the environment to start working in the library development:
+
+```bash
+conda activate OpenExplorer
+```
+
+In case the list of dependencies changed and the environment needs to be updated, use the Python
+script 'update_conda_env.py' with the environment activated:
+
+```bash
+conda activate OpenExplorer
+python update_conda_env.py development_env.yaml
+```
 
 ## How to contribute changes
 - Clone the repository if you have write access to the main repo, fork the repository if you are a collaborator.

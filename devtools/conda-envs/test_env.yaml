@@ -4,7 +4,12 @@ channels:
 - conda-forge
 - defaults
 dependencies:
+- python
+- setuptools
+- numpy
 - pyunitwizard
+- openmm
+- molsysmt
 - pytest
 - pip
 - pytest-cov

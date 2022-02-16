@@ -8,7 +8,6 @@
 
 import os
 import sys
-import sphinx_rtd_theme
 
 # -- Path setup --------------------------------------------------------------
 
@@ -21,22 +20,23 @@ import sphinx_rtd_theme
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('./../openexplorer'))
-
-print(sys.path)
+import openexplorer
 
 # -- Project information -----------------------------------------------------
 
-project = 'OpenExplorer'
-copyright = '2020, UIBCDF Lab at the Mexico City Childrens Hospital Federico Gomez and authors'
-author = 'Liliana M. Moreno Vargas & Diego Prada Gracia'
+project = "OpenExplorer"
+copyright = ("2022, The Mexico City Childrens' Hospital Federico Gomez and authors | "
+             "This project is licensed under the terms of the MIT license. "
+             "See further details in the source code repository | "
+             "Project based on the Computational Molecular Science Python Cookiecutter version 1.5")
+author = ("The Unit of Research on Computational Biology and Drug Design "
+          "at the Mexico City Childrens' Hospital Federico Gomez, and the "
+          "contributors to the GitHub repository uibcdf/OpenExplorer.")
 
 # The short X.Y version
-version = ''
+version = openexplorer.__version__.split('+')[0]
 # The full version, including alpha/beta/rc tags
-release = '0.1'
-
+release = openexplorer.__version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -55,17 +55,35 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'numpydoc',
+    'sphinx.ext.napoleon',
     'sphinx.ext.githubpages',
     'sphinxcontrib.bibtex',
-    'nbsphinx',
-    'recommonmark',
-    'sphinx_markdown_tables'
+    'sphinx.ext.extlinks',
+    'myst_nb'
 ]
 
 autosummary_generate = True
-autodoc_default_options = {'members':True, 'inherited-members':True}
-numpydoc_class_members_toctree = False
+
+# Napoleon settings
+napoleon_numpy_docstring = True
+napoleon_google_docstring = False
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = True
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
+napoleon_preprocess_types = False
+napoleon_type_aliases = None
+napoleon_attr_annotations = True
+
+# sphinxcontrib-bibtex
+bibtex_bibfiles = ['bibliography.bib'] # list of *.bib files
+bibtex_default_style = 'alpha'
+bibtex_encoding = 'utf-8-sig'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -76,10 +94,7 @@ templates_path = ['_templates']
 source_parsers={
 }
 
-source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown'
-}
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
@@ -90,10 +105,7 @@ master_doc = 'index'
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
 # language was edited to use sphinx-intl
-language = 'en'
-# These next two variables were incluede to use sphinx-intl
-locale_dirs =  ['_locale/']
-gettext_compact = False
+language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -101,7 +113,7 @@ gettext_compact = False
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'default'
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -116,6 +128,7 @@ html_theme = 'sphinx_rtd_theme'
 # documentation.
 #
 # html_theme_options = {}
+
 html_theme_options = {
     'canonical_url': '',
     'analytics_id': '',
@@ -126,13 +139,13 @@ html_theme_options = {
     # Toc options
     'collapse_navigation': False,
     'sticky_navigation': True,
-    'navigation_depth': 4,
+    'navigation_depth': 3,
     'includehidden': True,
     'titles_only': False
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+#html_theme_path = []
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -159,11 +172,14 @@ html_css_files = [
 #
 # html_sidebars = {}
 
+# To remove 'View page source' adding the 'Forkme on GitHub' ribbon.
+
+html_show_sourcelink = False
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'openexplorerdoc'
+htmlhelp_basename = 'openexplorer_doc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -216,9 +232,6 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 #intersphinx_mapping = {'https://docs.python.org/': None}
-
-# stackoverflow.com/questions/12206334
-numpydoc_show_class_members = False
 
 # -- Options for todo extension ----------------------------------------------
 
