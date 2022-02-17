@@ -25,7 +25,8 @@ import openexplorer
 # -- Project information -----------------------------------------------------
 
 project = "OpenExplorer"
-copyright = ("2022, The Mexico City Childrens' Hospital Federico Gomez and authors | "
+copyright = ("2022, The Mexico City Childrens' Hospital Federico Gomez, "
+             "its Unit of Research on Computational Biology and Drug Design, and authors | "
              "This project is licensed under the terms of the MIT license. "
              "See further details in the source code repository | "
              "Project based on the Computational Molecular Science Python Cookiecutter version 1.5")

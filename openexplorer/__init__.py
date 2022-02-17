@@ -14,6 +14,7 @@ __documentation_web__ = 'https://www.uibcdf.org/OpenExplorer'
 __github_web__ = 'https://github.com/uibcdf/OpenExplorer'
 __github_issues_web__ = __github_web__ + '/issues'
 
+from ._pyunitwizard import puw as puw
 
 from .explorer import Explorer
 from . import tools

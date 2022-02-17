@@ -33,7 +33,7 @@ class NotImplementedMethodError(NotImplementedError):
 
     def __init__(self):
 
-        from openexporer import __github_issues_web__
+        from openexplorer import __github_issues_web__
         from inspect import stack
 
         all_stack_frames = stack()
@@ -71,7 +71,7 @@ class NotImplementedClassError(NotImplementedError):
 
     Examples
     --------
-    >>> from openexporer._private_tools.exceptions import NotImplementedClassError
+    >>> from openexplorer._private_tools.exceptions import NotImplementedClassError
     >>> class ClassName():
     ...    def __init__(self):
     ...       raise NotImplementedClassError
@@ -86,7 +86,7 @@ class NotImplementedClassError(NotImplementedError):
 
     def __init__(self):
 
-        from openexporer import __github_issues_web__
+        from openexplorer import __github_issues_web__
         from inspect import stack
 
         all_stack_frames = stack()
@@ -122,7 +122,7 @@ class BadCallError(ValueError):
 
     Examples
     --------
-    >>> from openexporer._private_tools.exceptions import BadCallError
+    >>> from openexplorer._private_tools.exceptions import BadCallError
     >>> def method_name(item, a=True):
     ...    if type(a) not in [int, float]:
     ...       raise BadCallError('a')
@@ -137,7 +137,7 @@ class BadCallError(ValueError):
 
     def __init__(self, argument=None):
 
-        from openexporer import __github_issues_web__
+        from openexplorer import __github_issues_web__
         from inspect import stack
 
         all_stack_frames = stack()
