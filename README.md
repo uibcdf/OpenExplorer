@@ -1,6 +1,9 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 # OpenExplorer
+
+[//]: # (Badges)
+[![GitHub Actions Build Status](https://github.com/uibcdf/PyUnitWizard/workflows/CI/badge.svg)](https://github.com/uibcdf/PyUnitWizard/actions?query=workflow%3ACI)
+[![codecov](https://codecov.io/gh/uibcdf/PyUnitWizard/branch/master/graph/badge.svg)](https://codecov.io/gh/uibcdf/PyUnitWizard/branch/master)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 OpenExplorer is an open source library to explore the conformational free energy landscape of molecular systems.
 
