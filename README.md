@@ -31,4 +31,11 @@ The main project authors and major contributors are:
 - Diego Prada Gracia
 - Roberto Velázquez Fuentes
 
+## Installation
+
+With the conda env activated:
+
+```bash
+python setup.py develop
+```
 
